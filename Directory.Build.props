@@ -1,0 +1,47 @@
+﻿<Project>
+  <PropertyGroup>
+    <CADVersion>GSTARCAD2024_TO_2025</CADVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(CADVersion)' == 'GstarCAD2017To2023'">
+    <TargetFrameworks>net40;net48</TargetFrameworks>
+    <DefineConstants>$(DefineConstants);GSTARCAD2017_TO_2023</DefineConstants>
+    <FileVersion>2023.1</FileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(CADVersion)' == 'GstarCAD2024To2025'">
+    <TargetFrameworks>net48</TargetFrameworks>
+    <DefineConstants>$(DefineConstants);GSTARCAD2024_TO_2025</DefineConstants>
+    <FileVersion>2024.1</FileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(CADVersion)' == 'AutoCAD2015To2024'">
+    <TargetFrameworks>net48</TargetFrameworks>
+    <DefineConstants>$(DefineConstants);AUTOCAD2015_TO_2024</DefineConstants>
+    <FileVersion>2024.1-AutoCAD</FileVersion>
+    <NoWarn>$(NoWarn);CS7035</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <OutputPath>$(SolutionDir)out\$(Configuration)</OutputPath>
+    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
+    <Authors>Sharper</Authors>
+    <Version>1.0.0.0</Version>
+    <AssemblyVersion>$(Version)</AssemblyVersion>
+    <PackageVersion>$(FileVersion)</PackageVersion>
+    <Title>CAD Drawable Object Viewer Library</Title>
+    <Product>CAD Drawable Object Viewer Library</Product>
+    <AssemblyTitle>CAD Drawable Object Viewer Library</AssemblyTitle>
+    <Description>An unofficial extension library enhanced for GstarCAD .NET SDK</Description>
+    <Copyright>Copyright (c) Sharper under MIT License</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/sharperzhou/DrawableViewer</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/sharperzhou/DrawableViewer</RepositoryUrl>
+    <PackageIcon>logo.jpg</PackageIcon>
+    <RepositoryType>Git</RepositoryType>
+    <PackageTags>GstarCAD; .NET; Drawable object viewer</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="../README.md" Pack="true" PackagePath=""/>
+    <None Include="../logo.jpg" Pack="true" PackagePath=""/>
+  </ItemGroup>
+</Project>

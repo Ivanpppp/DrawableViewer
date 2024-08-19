@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <UseWindowsForms>true</UseWindowsForms>
+    <UseWpf>true</UseWpf>
+    <NoWarn>$(NoWarn);NU1603</NoWarn>
+  </PropertyGroup>
+    
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <DocumentationFile>$(OutputPath)/$(TargetFramework)/$(AssemblyName).xml</DocumentationFile>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(CADVersion)' == 'GstarCAD2017To2023'">
+    <PackageReference Condition="'$(TargetFramework)' == 'net40'" Include="GstarCADNET" Version="[17.2,20)" ExcludeAssets="runtime" />
+    <PackageReference Condition="'$(TargetFramework)' == 'net48'" Include="GstarCADNET" Version="[20,24)" ExcludeAssets="runtime" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(CADVersion)' == 'GstarCAD2024To2025'">
+    <PackageReference Include="GstarCADNET" Version="[24,26)" ExcludeAssets="runtime" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(CADVersion)' == 'AutoCAD2015To2024'">
+    <PackageReference Include="AutoCAD.NET" Version="[20,25)" ExcludeAssets="runtime" />
+  </ItemGroup>
+
+</Project>
