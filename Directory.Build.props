@@ -1,6 +1,6 @@
 ﻿<Project>
   <PropertyGroup>
-    <CADVersion>GSTARCAD2024_TO_2025</CADVersion>
+    <CADVersion>GstarCAD2024To2025</CADVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(CADVersion)' == 'GstarCAD2017To2023'">
     <TargetFrameworks>net40;net48</TargetFrameworks>
