@@ -1,5 +1,11 @@
 ﻿using System;
 using System.Windows.Forms;
+using System.Drawing;
+using static System.Net.Mime.MediaTypeNames;
+using static System.Net.Mime.MediaTypeNames;
+
+
+
 
 #if AUTOCAD2015_TO_2024
 using Autodesk.AutoCAD;
@@ -61,6 +67,26 @@ namespace Sharper.GstarCAD.Extensions
         private Extents3d _extents;
 
         /// <summary>
+        /// 记录初始点位
+        /// </summary>
+        private Point _startPt;
+
+        /// <summary>
+        /// 判断控件是否需要相应鼠标操作
+        /// </summary>
+        private bool _mouseAction;
+
+        /// <summary>
+        /// 鼠标滚轮缩小比例
+        /// </summary>
+        private readonly double _mouseWheelZoomInScale = 0.9;
+
+        /// <summary>
+        /// 鼠标滚轮放大比例
+        /// </summary>
+        private readonly double _mouseWheelZoomOutScale = 1.1;
+
+        /// <summary>
         /// 默认构造器，对绘图系统的模型、设备和视图进行初始化
         /// </summary>
         public DrawableViewer()
@@ -82,6 +108,7 @@ namespace Sharper.GstarCAD.Extensions
 #endif
             _view = new View();
             _device.Add(_view);
+            _mouseAction = true;
         }
 
         /// <summary>
@@ -200,6 +227,162 @@ namespace Sharper.GstarCAD.Extensions
             _device.OnSize(ClientRectangle);
 #endif
             Invalidate();
+        }
+
+        /// <summary>
+        /// 设置空间是否需要响应鼠标事件
+        /// </summary>
+        /// <param name="bCapture"></param>
+        public void SetMouseAction(bool bCapture)
+        {
+            _mouseAction = bCapture;
+        }
+
+
+        /// <inheritdoc />
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            base.OnMouseDown(e);
+            if (!_mouseAction) return;
+            if (_view != null)
+            {
+                if(e.Button == MouseButtons.Right) ResetView();
+            }
+        }
+
+
+        /// <inheritdoc />
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+            if (!_mouseAction) return;
+            if (_view != null)
+            {
+                if (e.Button == MouseButtons.Middle)
+                {
+                    PanView(e.Location);
+                }
+                if (e.Button == MouseButtons.Left)
+                {
+                    OrbitView(e.Location);
+                }
+                _view.Invalidate();
+                _view.Update();
+                _startPt = e.Location;
+            }
+        }
+
+        /// <inheritdoc />
+        protected override void OnMouseWheel(MouseEventArgs e)
+        {
+            base.OnMouseWheel(e);
+            if (!_mouseAction) return;
+            if (e.Delta > 0)
+            {
+                _view?.Zoom(_mouseWheelZoomOutScale);
+            }
+            else
+            {
+                _view?.Zoom(_mouseWheelZoomInScale);
+            }
+            _view.Invalidate();
+            _view.Update();
+        }
+
+        /// <summary>
+        /// 将View重置为俯视图
+        /// </summary>
+        private void ResetView()
+        {
+            var pos = new Point3d(_extents.MaxPoint.X + (_extents.MinPoint.X - _extents.MaxPoint.X) / 2, _extents.MaxPoint.Y + (_extents.MinPoint.Y - _extents.MaxPoint.Y) / 2, 1);
+            var tar = new Point3d(pos.X, pos.Y, 0);
+            _view.SetView(pos, tar, new Vector3d(0, 1, 0), this.Width, this.Height);
+            _view.ZoomExtents(_extents.MinPoint, _extents.MaxPoint);
+            _view.Zoom(0.95);
+            _view.Invalidate();
+            _view.Update();
+        }
+
+        /// <summary>
+        /// 二维平面下移动视角
+        /// </summary>
+        /// <param name="pt">新的点位置</param>
+        private void PanView(System.Drawing.Point pt)
+        {
+            var vec = new Vector3d(-(pt.X - _startPt.X), pt.Y - _startPt.Y, 0);
+            vec.TransformBy(_view.ViewingMatrix * _view.WorldToDeviceMatrix.Inverse());
+            _view.Dolly(vec);
+        }
+
+        /// <summary>
+        /// 三维控件旋转View视角
+        /// </summary>
+        /// <param name="pt">新的点位置</param>
+        private void OrbitView(System.Drawing.Point pt)
+        {
+            double Half_Pi = 1.570796326795;
+#if GSTARCAD2024_TO_2025 || AUTOCAD2015_TO_2024
+
+            System.Drawing.Rectangle view_rect = ClientRectangle;
+#else
+            System.Drawing.Rectangle view_rect = _view.Viewport;
+#endif
+            int nViewportX = (view_rect.Right - view_rect.Left) + 1;
+            int nViewportY = (view_rect.Bottom - view_rect.Top) + 1;
+            int centerX = (int)(nViewportX / 2.0f + view_rect.Left);
+            int centerY = (int)(nViewportY / 2.0f + view_rect.Top);
+            double radius = System.Math.Min(nViewportX, nViewportY) * 0.4f;
+            Vector3d last_vector = new Vector3d((_startPt.X - centerX) / radius,
+                -(_startPt.Y - centerY) / radius,
+                0.0);
+            if (last_vector.LengthSqrd > 1.0)     // outside the radius
+            {
+                double x = last_vector.X / last_vector.Length;
+                double y = last_vector.Y / last_vector.Length;
+                double z = last_vector.Z / last_vector.Length;
+                last_vector = new Vector3d(x, y, z);
+            }
+            else
+            {
+                double x = last_vector.X;
+                double y = last_vector.Y;
+                double z = System.Math.Sqrt(1.0 - last_vector.X * last_vector.X - last_vector.Y * last_vector.Y);
+                last_vector = new Vector3d(x, y, z);
+            }
+            Vector3d new_vector = new Vector3d((pt.X - centerX) / radius, -(pt.Y - centerY) / radius, 0.0);
+
+            if (new_vector.LengthSqrd > 1.0)     // outside the radius
+            {
+                double x = new_vector.X / new_vector.Length;
+                double y = new_vector.Y / new_vector.Length;
+                double z = new_vector.Z / new_vector.Length;
+                new_vector = new Vector3d(x, y, z);
+
+            }
+            else
+            {
+                double x = new_vector.X;
+                double y = new_vector.Y;
+                double z = System.Math.Sqrt(1.0 - new_vector.X * new_vector.X - new_vector.Y * new_vector.Y);
+                new_vector = new Vector3d(x, y, z);
+            }
+            Vector3d rotation_vector = last_vector;
+            rotation_vector = rotation_vector.CrossProduct(new_vector); 
+            Vector3d work_vector = rotation_vector;
+            work_vector = new Vector3d(work_vector.X, work_vector.Y, 0.0f);
+            double roll_angle = System.Math.Atan2(work_vector.X, work_vector.Y);
+            double length = rotation_vector.Length;
+            double orbit_y_angle = (length != 0.0) ? System.Math.Acos(rotation_vector.Z / length) + Half_Pi : Half_Pi;                   // represents inverse cosine of the dot product of the
+            if (length > 1.0f) length = 1.0f;
+
+            double rotation_angle = System.Math.Asin(length);
+
+            // perform view manipulations
+            _view.Roll(roll_angle);                 // 1: roll camera to make up vector coincident with rotation vector
+            _view.Orbit(0.0f, orbit_y_angle);       // 2: orbit along y to make up vector parallel with rotation vector
+            _view.Orbit(rotation_angle, 0.0f);      // 3: orbit along x by rotation angle
+            _view.Orbit(0.0f, -orbit_y_angle);      // 4: orbit along y by the negation of 2
+            _view.Roll(-roll_angle);                // 5: roll camera by the negation of 1
         }
     }
 }

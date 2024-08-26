@@ -16,7 +16,9 @@
 
         <WindowsFormsHost Grid.Row="0" Grid.Column="0" Margin="10"
                           dv:DrawableViewerBehavior.DrawableObject="{Binding Drawable}"
-                          dv:DrawableViewerBehavior.AutoZoomingWhenDrawableChanged="True">
+                          dv:DrawableViewerBehavior.AutoZoomingWhenDrawableChanged="True"
+                          dv:DrawableViewerBehavior.MouseActionResponse="False"
+                          >
             <dv:DrawableViewer x:Name="Viewer" />
         </WindowsFormsHost>
         <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Vertical">
