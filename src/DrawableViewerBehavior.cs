@@ -70,6 +70,7 @@ namespace Sharper.GstarCAD.Extensions
 
             if (GetAutoZoomingWhenDrawableChanged(d))
                 viewer.ZoomExtents();
+            viewer.SetMouseAction(GetMouseActionResponse(d));
 
             viewer.Invalidate();
         }
@@ -119,6 +120,33 @@ namespace Sharper.GstarCAD.Extensions
         public static bool GetAutoZoomingWhenDrawableChanged(DependencyObject d)
         {
             return (bool)d.GetValue(AutoZoomingWhenDrawableChangedProperty);
+        }
+
+        /// <summary>
+        /// 绘图对象是否响应鼠标事件
+        /// </summary>
+        public static readonly DependencyProperty MouseActionProperty =
+            DependencyProperty.RegisterAttached("MouseAction", typeof(bool),
+                typeof(DrawableViewerBehavior), new PropertyMetadata(true));
+
+        /// <summary>
+        /// 设置绘图对象改变时是否进行视图自适应缩放
+        /// </summary>
+        /// <param name="d">被绑定的 <see cref="WindowsFormsHost"/> 对象</param>
+        /// <param name="autoZoomingWhenDrawableChanged">是否自适应缩放</param>
+        public static void SetMouseActionResponse(DependencyObject d, bool mouseAction)
+        {
+            d.SetValue(MouseActionProperty, mouseAction);
+        }
+
+        /// <summary>
+        /// 获取绘图对象改变时是否进行视图自适应缩放
+        /// </summary>
+        /// <param name="d">被绑定的 <see cref="WindowsFormsHost"/> 对象</param>
+        /// <returns>是否自适应缩放</returns>
+        public static bool GetMouseActionResponse(DependencyObject d)
+        {
+            return (bool)d.GetValue(MouseActionProperty);
         }
     }
 }

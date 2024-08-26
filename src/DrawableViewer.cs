@@ -72,6 +72,11 @@ namespace Sharper.GstarCAD.Extensions
         private Point _startPt;
 
         /// <summary>
+        /// 判断控件是否需要相应鼠标操作
+        /// </summary>
+        private bool _mouseAction;
+
+        /// <summary>
         /// 鼠标滚轮缩小比例
         /// </summary>
         private readonly double _mouseWheelZoomInScale = 0.9;
@@ -103,6 +108,7 @@ namespace Sharper.GstarCAD.Extensions
 #endif
             _view = new View();
             _device.Add(_view);
+            _mouseAction = true;
         }
 
         /// <summary>
@@ -223,10 +229,21 @@ namespace Sharper.GstarCAD.Extensions
             Invalidate();
         }
 
+        /// <summary>
+        /// 设置空间是否需要响应鼠标事件
+        /// </summary>
+        /// <param name="bCapture"></param>
+        public void SetMouseAction(bool bCapture)
+        {
+            _mouseAction = bCapture;
+        }
+
+
         /// <inheritdoc />
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
+            if (!_mouseAction) return;
             if (_view != null)
             {
                 if(e.Button == MouseButtons.Right) ResetView();
@@ -238,7 +255,7 @@ namespace Sharper.GstarCAD.Extensions
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
-
+            if (!_mouseAction) return;
             if (_view != null)
             {
                 if (e.Button == MouseButtons.Middle)
@@ -259,6 +276,7 @@ namespace Sharper.GstarCAD.Extensions
         protected override void OnMouseWheel(MouseEventArgs e)
         {
             base.OnMouseWheel(e);
+            if (!_mouseAction) return;
             if (e.Delta > 0)
             {
                 _view?.Zoom(_mouseWheelZoomOutScale);
