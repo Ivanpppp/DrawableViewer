@@ -70,7 +70,6 @@ namespace Sharper.GstarCAD.Extensions
 
             if (GetAutoZoomingWhenDrawableChanged(d))
                 viewer.ZoomExtents();
-            viewer.SetMouseAction(GetMouseActionResponse(d));
 
             viewer.Invalidate();
         }
@@ -81,6 +80,29 @@ namespace Sharper.GstarCAD.Extensions
         public static readonly DependencyProperty AutoZoomingWhenDrawableChangedProperty =
             DependencyProperty.RegisterAttached("AutoZoomingWhenDrawableChanged", typeof(bool),
                 typeof(DrawableViewerBehavior), new PropertyMetadata(true));
+
+        /// <summary>
+        /// <see cref="DrawableViewer"/> 控件能否响应鼠标事件
+        /// </summary>
+        public static readonly DependencyProperty CanMouseOperationProperty =
+            DependencyProperty.RegisterAttached("CanMouseOperation", typeof(bool),
+                typeof(DrawableViewerBehavior), new PropertyMetadata(true, OnCanMouseOperationChanged));
+
+        /// <summary>
+        /// 响应控件能否支持鼠标操作的事件处理器
+        /// </summary>
+        /// <param name="d">被绑定的 <see cref="WindowsFormsHost"/> 对象</param>
+        /// <param name="e">绑定事件</param>
+        private static void OnCanMouseOperationChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (!(d is WindowsFormsHost host) || !(host.Child is DrawableViewer viewer))
+                return;
+
+            if (e.Property != CanMouseOperationProperty)
+                return;
+
+            viewer.CanMouseOperation = Equals(e.NewValue, true);
+        }
 
         /// <summary>
         /// 设置绘图对象
@@ -123,30 +145,23 @@ namespace Sharper.GstarCAD.Extensions
         }
 
         /// <summary>
-        /// 绘图对象是否响应鼠标事件
-        /// </summary>
-        public static readonly DependencyProperty MouseActionProperty =
-            DependencyProperty.RegisterAttached("MouseAction", typeof(bool),
-                typeof(DrawableViewerBehavior), new PropertyMetadata(true));
-
-        /// <summary>
-        /// 设置绘图对象改变时是否进行视图自适应缩放
+        /// 设置控件是否支持鼠标操作
         /// </summary>
         /// <param name="d">被绑定的 <see cref="WindowsFormsHost"/> 对象</param>
-        /// <param name="autoZoomingWhenDrawableChanged">是否自适应缩放</param>
-        public static void SetMouseActionResponse(DependencyObject d, bool mouseAction)
+        /// <param name="canMouseOperation">是否支持鼠标操作</param>
+        public static void SetCanMouseOperation(DependencyObject d, bool canMouseOperation)
         {
-            d.SetValue(MouseActionProperty, mouseAction);
+            d.SetValue(CanMouseOperationProperty, canMouseOperation);
         }
 
         /// <summary>
-        /// 获取绘图对象改变时是否进行视图自适应缩放
+        /// 获取控件是否支持鼠标操作
         /// </summary>
         /// <param name="d">被绑定的 <see cref="WindowsFormsHost"/> 对象</param>
-        /// <returns>是否自适应缩放</returns>
-        public static bool GetMouseActionResponse(DependencyObject d)
+        /// <returns>是否支持鼠标操作</returns>
+        public static bool GetCanMouseOperation(DependencyObject d)
         {
-            return (bool)d.GetValue(MouseActionProperty);
+            return (bool)d.GetValue(CanMouseOperationProperty);
         }
     }
 }

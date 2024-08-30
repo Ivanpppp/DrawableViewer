@@ -14,6 +14,7 @@ using (var form = new Form { Size = new Size(300, 350) })
     var viewer = new DrawableViewer() { Dock = DockStyle.Fill };
     viewer.Add(circle);
     viewer.ZoomExtents();
+    viewer.CanMouseOperation = false;
     form.Controls.Add(viewer);
     form.ShowDialog();
 }
@@ -31,7 +32,8 @@ The xaml file can be written:
   <Grid>
     <WindowsFormsHost Grid.Row="0" Grid.Column="0" Margin="10"
         dv:DrawableViewerBehavior.DrawableObject="{Binding Drawable}"
-        dv:DrawableViewerBehavior.AutoZoomingWhenDrawableChanged="True">
+        dv:DrawableViewerBehavior.AutoZoomingWhenDrawableChanged="True"
+        dv:DrawableViewerBehavior.CanMouseOperation="False">
       <dv:DrawableViewer />
     </WindowsFormsHost>
   </Grid>

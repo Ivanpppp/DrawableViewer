@@ -17,14 +17,14 @@
         <WindowsFormsHost Grid.Row="0" Grid.Column="0" Margin="10"
                           dv:DrawableViewerBehavior.DrawableObject="{Binding Drawable}"
                           dv:DrawableViewerBehavior.AutoZoomingWhenDrawableChanged="True"
-                          dv:DrawableViewerBehavior.MouseActionResponse="False"
-                          >
+                          dv:DrawableViewerBehavior.CanMouseOperation="{Binding ElementName=MouseOperationCheckBox,Path=IsChecked}">
             <dv:DrawableViewer x:Name="Viewer" />
         </WindowsFormsHost>
         <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Vertical">
             <Button Content="独立圆" Margin="10" Command="{Binding DrawCircleCommand}" />
             <Button Content="当前空间" Margin="10" Command="{Binding DrawCurrentSpaceCommand}" />
             <Button Content="清空" Margin="10" Command="{Binding ClearCommand}" />
+            <CheckBox Name="MouseOperationCheckBox" Content="鼠标操作" Margin="10" />
         </StackPanel>
     </Grid>
 </Window>
