@@ -302,7 +302,13 @@ namespace Sharper.GstarCAD.Extensions
 
             Vector3d rotationVector = lastVector.CrossProduct(newVector);
             Vector3d workingVector = new Vector3d(rotationVector.X, rotationVector.Y, 0.0);
+
+#if AUTOCAD2015_TO_2024
             double rollAngle = Math.Atan2(workingVector.X, workingVector.Y);
+#else
+            // 此处鼠标左键进行三维旋转，发现X方向和Y方向与实际拖动方向相反
+            double rollAngle = Math.Atan2(workingVector.Y, workingVector.X);
+#endif
             double orbitYAngle = rotationVector.Length != 0.0
                 ? Math.Acos(rotationVector.Z / rotationVector.Length) + Math.PI / 2
                 : Math.PI;
