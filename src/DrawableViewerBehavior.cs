@@ -71,6 +71,11 @@ namespace Sharper.GstarCAD.Extensions
             if (GetAutoZoomingWhenDrawableChanged(d))
                 viewer.ZoomExtents();
 
+            
+            // 需要在此处单独更新DrawableViewer的鼠标操作属性，否则在WPF控件中直接设置导致无效
+            viewer.CanMouseOperation = GetCanMouseOperation(d);
+            
+
             viewer.Invalidate();
         }
 
